@@ -58,7 +58,7 @@ else if (bits_pos<8){
 else if (bits_pos > 7){
         last_dir = 1;
         }
-Serial.println(lfSensor);
+Serial.println(bits_pos);
 Serial.println(turn);
 }
 
