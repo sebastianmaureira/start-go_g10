@@ -12,6 +12,11 @@
 * Suivi lign
 ## COmme utilizer Git
 
+### Telecharger
+ 1. git pull
+
+ TOUJOURS TELECHARGER AVANT FAIRE QUE CHANGES
+
 ### Upload
 Dans le repo
  1. git add .
@@ -19,8 +24,7 @@ Dans le repo
  3. git push
 
 
-### Telecharger
- 1. git pull
+
 
 
 BONNE CHANCE
