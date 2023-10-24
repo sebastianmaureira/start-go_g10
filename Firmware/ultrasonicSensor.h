@@ -1,3 +1,0 @@
-
-
-#define ULTRASENSOR PORT_8
