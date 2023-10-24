@@ -29,7 +29,7 @@ unsigned long T;
 
 int turn;
 
-
+unsigned int dir_obs;
 void setup() {
   
   motors_setup();
@@ -48,6 +48,7 @@ void loop() {
   // Main loop
   if (millis() - T > DT){
     T = millis();
+    dir_obs = turnDirection();
     lineFollower_loop();
     pos = positionRelative();
     DP = pos - pos2;
@@ -76,19 +77,21 @@ void loop() {
 
   }
   
-  if (get_cm() < 15 && turnDirection() && millis() - T < DT) {
+  if (get_cm() < 15 && dir_obs) {
     T = millis();
-    unsigned int dir_obs;
-    while (millis() - T < 900){
-      dir_obs = turnDirection();
+    
+    while (millis() - T < 600){
       if (dir_obs == 1){
+        setMotorGVoltage(PWMT);
+        setMotorDVoltage(-PWMT /2);
+      }
+      else {
         setMotorGVoltage(-PWMT /2);
         setMotorDVoltage(PWMT);
       }
-      else{
-        setMotorGVoltage(PWMT);
-        setMotorDVoltage( -PWMT / 2);
-      }
+      if (getState != 15 && millis() - T > 100) {
+        break;
+        } 
     }
     while (getState() != 15){
       lineFollower_loop();
