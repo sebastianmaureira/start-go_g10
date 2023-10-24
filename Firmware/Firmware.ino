@@ -89,9 +89,9 @@ void loop() {
         setMotorGVoltage(-PWMT /2);
         setMotorDVoltage(PWMT);
       }
-      if (getState != 15 && millis() - T > 100) {
-        break;
-        } 
+      //if (getState != 15 && millis() - T > 100) {
+      //  break;
+      //  } 
     }
     while (getState() != 15){
       lineFollower_loop();
