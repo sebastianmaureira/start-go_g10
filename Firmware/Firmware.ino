@@ -3,7 +3,7 @@
 #include <MeMegaPi.h>
 
 /*
- * Main file
+ * Main fileº
  * 
  * apply a duty cycle of 255/ref to the motor1 (PWM) where ref is a value obtained from the serial port (in ascii format) 
  * send back the actual position of the motor shaft (in pulses).
@@ -14,6 +14,7 @@
 #include "Motors.h"
 #include "Encoders.h"
 #include "lineFollower.h"
+#include "Ultrasonic.h"
 
 
 #define DT 50 //sampling period in milliseconds
@@ -51,6 +52,13 @@ void loop() {
     pos = positionRelative();
     DP = pos - pos2;
     pos2 = pos;
+
+    Serial.print("Dstance: ");
+    Serial.println(get_cm());
+
+    //setMotorDVoltage(0);
+    //setMotorGVoltage(0);
+
     if (pos > 0) {
       setMotorGVoltage(PWMT);
       setMotorDVoltage(PWMT - abs(pos) * KP + abs(DP / (DT*0.001)) * KD - abs(turn) * PWMT );
@@ -65,6 +73,44 @@ void loop() {
     }
 
 
+
+  }
+  
+  if (get_cm() < 15 && turnDirection() && millis() - T < DT) {
+    T = millis();
+    unsigned int dir_obs;
+    while (millis() - T < 900){
+      dir_obs = turnDirection();
+      if (dir_obs == 1){
+        setMotorGVoltage(-PWMT /2);
+        setMotorDVoltage(PWMT);
+      }
+      else{
+        setMotorGVoltage(PWMT);
+        setMotorDVoltage( -PWMT / 2);
+      }
+    }
+    while (getState() != 15){
+      lineFollower_loop();
+      pos = positionRelative();
+      DP = pos - pos2;
+      pos2 = pos;
+
+      Serial.println("evado la wea");
+      if (pos > 0) {
+        setMotorGVoltage(PWMT);
+        setMotorDVoltage(PWMT - abs(pos) * KP + abs(DP / (DT*0.001)) * KD - abs(turn) * PWMT );
+      }
+      else if (pos < 0 ) {
+        setMotorGVoltage(PWMT - abs(pos) * KP + abs(DP / (DT*0.001)) * KD - abs(turn) * PWMT);
+        setMotorDVoltage(PWMT);
+      }
+      else {
+        setMotorDVoltage(PWMT);
+        setMotorGVoltage(PWMT);
+      }
+    }
+    
   }
 
 

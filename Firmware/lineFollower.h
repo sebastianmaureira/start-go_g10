@@ -59,3 +59,4 @@ extern T_octet lfSensor;
 int positionRealtive();
 void lineFollower_setup();
 int positionRelative();
+int turnDirection();
