@@ -20,11 +20,11 @@
 #define DT 40 //sampling period in milliseconds
 #define PWMT 95 //définit le pwm de travail, celui d'un robot parfaitement calibré
 #define PWMT_OBS 45 //définit le pwm de travail, celui d'un robot parfaitement calibré
-#define KP 0.36// coeeficient pour la partie proportionelle
-#define KI 0.1// coefficient pour la partie integrée
-#define KD 0.05// coefficient pour la partie dérivée
-#define KP2 0.3 // coeeficient pour la partie proportionelle
-#define KI2 0.1 // coefficient pour la partie integrée
+#define KP 0.3// coeeficient pour la partie proportionelle
+#define KI 0.11// coefficient pour la partie integrée
+#define KD 0.02// coefficient pour la partie dérivée
+#define KP2 0.5 // coeeficient pour la partie proportionelle
+#define KI2 0.11 // coefficient pour la partie integrée
 #define KD2 0 // coefficient pour la partie dérivée
 unsigned long debut = millis();
 int pos;
@@ -95,8 +95,8 @@ void loop() {
       setMotorDVoltage(PWMT  + (abs(pos) * KP-  integrale * KI - abs(DP / (DT*0.001)) * KD) * 0.7);
     }
     else {
-      setMotorDVoltage(PWMT*1.3);
-      setMotorGVoltage(PWMT*1.3);
+      setMotorDVoltage(PWMT*1.25);
+      setMotorGVoltage(PWMT*1.25);
       // integrale = 0;
     }
 
