@@ -47,11 +47,11 @@ bits_pos = RGBLineFollower.getPositionState();
 turn=0;
 if (bits_pos == 15){
   if (last_dir == 1){
-    lfSensor = -150;
+    lfSensor = -175;
     turn = -1;
     }
   else{
-   lfSensor = 150;
+   lfSensor = 175;
    turn = 1;
         }
 }

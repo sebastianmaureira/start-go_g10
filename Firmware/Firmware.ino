@@ -17,13 +17,14 @@
 #include "Ultrasonic.h"
 
 
-#define DT 40 //sampling period in milliseconds
-#define PWMT 85 //définit le pwm de travail, celui d'un robot parfaitement calibré
-#define KP 0.4// coeeficient pour la partie proportionelle
-#define KI 0.11// coefficient pour la partie integrée
-#define KD 0.04// coefficient pour la partie dérivée
-#define KP2 0.6 // coeeficient pour la partie proportionelle
-#define KI2 0.5 // coefficient pour la partie integrée
+#define DT 37 //sampling period in milliseconds
+#define PWMT 100 //définit le pwm de travail, celui d'un robot parfaitement calibré
+#define PWMT_OBS 55 //définit le pwm de travail, celui d'un robot parfaitement calibré
+#define KP 0.34// coeeficient pour la partie proportionelle
+#define KI 0.12// coefficient pour la partie integrée
+#define KD 0.03// coefficient pour la partie dérivée
+#define KP2 0.5 // coeeficient pour la partie proportionelle
+#define KI2 0.3 // coefficient pour la partie integrée
 #define KD2 0 // coefficient pour la partie dérivée
 unsigned long debut = millis();
 int pos;
@@ -79,12 +80,12 @@ void loop() {
     DP = pos - pos2;
     pos2 = pos;
     integrale = integrale + (pos * DT * 0.001);
-    if (abs(integrale)>700){
+    if (abs(integrale)>600){
       if (integrale < 0){
-        integrale = -700.0;
+        integrale = -600.0;
       }
       else{
-        integrale = 700.0;
+        integrale = 600.0;
       }
     }
 //
@@ -106,8 +107,8 @@ void loop() {
       setMotorDVoltage(PWMT  + (abs(pos) * KP-  integrale * KI - abs(DP / (DT*0.001)) * KD) * 0.7);
     }
     else {
-      setMotorDVoltage(PWMT * 1.2);
-      setMotorGVoltage(PWMT * 1.2);
+      setMotorDVoltage(PWMT*1.15);
+      setMotorGVoltage(PWMT*1.15);
       // integrale = 0;
     }
 
@@ -115,17 +116,17 @@ void loop() {
 
   }
   
-  if (get_cm() < 15 && dir_obs) {
+  if (get_cm() < 17 && dir_obs) {
     T = millis();
     old_dir_obs = dir_obs;
     while (millis() - T < 600){
       if (dir_obs == 1){
-        setMotorGVoltage(PWMT * 0.7);
-        setMotorDVoltage(-PWMT  /2);
+        setMotorGVoltage(PWMT_OBS);
+        setMotorDVoltage(-PWMT_OBS /2);
       }
       else {
-        setMotorGVoltage(-PWMT / 2);
-        setMotorDVoltage(PWMT * 0.7);
+        setMotorGVoltage(-PWMT_OBS / 2);
+        setMotorDVoltage(PWMT_OBS);
       }
       //if (getState != 15 && millis() - T > 100) {
       //  break;
@@ -142,16 +143,16 @@ void loop() {
         integrale = integrale + pos * DT * 0.001;
         Serial.println("evado la wea");
         if (pos > 0) {
-          setMotorGVoltage(PWMT*.7 +  integrale * KI2 / 2);
-          setMotorDVoltage(PWMT*.7 - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);// - abs(turn) * PWMT );
+          setMotorGVoltage(PWMT_OBS +  integrale * KI2 / 2);
+          setMotorDVoltage(PWMT_OBS - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);// - abs(turn) * PWMT );
         }
         else if (pos < 0 ) {
-          setMotorGVoltage(PWMT*.7 - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);// - abs(turn) * PWMT);
-          setMotorDVoltage(PWMT*.7 -  integrale * KI2 / 2);
+          setMotorGVoltage(PWMT_OBS - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);// - abs(turn) * PWMT);
+          setMotorDVoltage(PWMT_OBS -  integrale * KI2 / 2);
         }
         else {
-          setMotorDVoltage(PWMT / 2);
-          setMotorGVoltage(PWMT / 2);
+          setMotorDVoltage(PWMT_OBS);
+          setMotorGVoltage(PWMT_OBS);
         }
       }
     }
