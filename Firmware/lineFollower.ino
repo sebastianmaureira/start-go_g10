@@ -30,7 +30,8 @@ int last_dir;
 // last_dir 0  str8
 // last_dir 1  droite
 // last_dir 2 gauche
-
+uint8_t dro = 8;
+uint8_t gau = 1;
 
 uint8_t getState() {
   return RGBLineFollower.getPositionState();
@@ -47,23 +48,29 @@ bits_pos = RGBLineFollower.getPositionState();
 turn=0;
 if (bits_pos == 15){
   if (last_dir == 1){
-    lfSensor = -162;
+    lfSensor = -145;
     turn = -1;
     }
   else{
-   lfSensor = 162;
+   lfSensor = 145;
    turn = 1;
         }
 }
 else if (bits_pos==0){
         lfSensor = 0;
         }
-else if (bits_pos<8){
+/*else if (bits_pos<8){
         last_dir = 2;
         }
 else if (bits_pos > 7){
         last_dir = 1;
-        }
+        }*/
+else if ((15^ bits_pos) & gau){
+          last_dir= 1;
+          }
+else if ((15^ bits_pos) & dro){
+          last_dir= 2;
+          }
 // Serial.println(bits_pos);
 // Serial.println(turn);
 }
@@ -84,17 +91,23 @@ int positionRelative() {
 // if 0, then don't turn yet
 // if 1, then turn droite
 // if 2, then turn left
-uint8_t gau = 1;
-uint8_t dro = 8;
-int turnDirection() {
+
+unsigned int turnDirection(unsigned int val) {
   
   bits_pos = RGBLineFollower.getPositionState();
 
-  if (bits_pos & gau){
+  if ((15^ bits_pos) & gau){
           return 2;
           }
-  else if (bits_pos & dro){
+  else if ((15^ bits_pos) & dro){
           return 1;
           }
-  return 0;
+  return val;
+  }
+
+
+  uint8_t bp() {
+  
+  return 15^RGBLineFollower.getPositionState();
+
   }
