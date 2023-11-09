@@ -101,7 +101,7 @@ void loop() {
     }
 
     // Turning avec PID AND turning state. (if turning state, no pid, just turns)
-    if (distance_front > 16  and distance_side >14){
+    if (distance_front > 16  and distance_side >15){
       if (pos > 0) {
         setMotorGVoltage(PWMT -abs(pos) *0.35 + (KP * abs(pos) + integrale * KI -abs(DP / (DT*0.001)) * KD)*0.2);   // -abs(integrale) * 0.2
         setMotorDVoltage((PWMT -abs(pos) *0.35 - KP * abs(pos)  - integrale * KI) * (1- abs(turn))- abs(turn)*PWMT *0.7); // + abs(DP / (DT*0.001)) * KD   -abs(integrale) * 0.2
@@ -127,7 +127,7 @@ void loop() {
 
 
   // Turning logic
-  else if (distance_front < 15 && distance_side > 13) {
+  else if (distance_front < 15 && distance_side > 10) {
     T = millis();
     old_dir_obs = dir_obs;
     // Forces 90º turn
@@ -190,7 +190,7 @@ void loop() {
     state = 0;
   }
 
-  else if (distance_front < 15 and distance_side < 14){
+  else if (distance_front < 15 and distance_side < 10){
       setMotorDVoltage(0);
       setMotorGVoltage(0);
       delay(500);
