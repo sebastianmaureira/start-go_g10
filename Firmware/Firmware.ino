@@ -163,7 +163,7 @@ void loop() {
     T2=millis();
     T = T2;
     // Follow the line at least a little.
-    while (((15 ^ getState()) & 15 or millis() - T2 < 500) and T -T2 < 6000 and state != 5){
+    while (((15 ^ getState()) & 15 or millis() - T2 < 500) and T -T2 < 6500 and state != 5){
       if (millis() - T > DT){
         T = millis();
         lineFollower_loop();
@@ -172,16 +172,16 @@ void loop() {
         pos2 = pos;
         integrale = integrale + pos * DT * 0.001;
         if (pos > 0) {
-          setMotorGVoltage(PWMT_OBS*1.35);
-          setMotorDVoltage(PWMT_OBS*1.35 - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT );
+          setMotorGVoltage(PWMT_OBS*1.33);
+          setMotorDVoltage(PWMT_OBS*1.33 - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT );
         }
         else if (pos < 0 ) {
-          setMotorGVoltage(PWMT_OBS*1.35 - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT);
-          setMotorDVoltage(PWMT_OBS*1.35);
+          setMotorGVoltage(PWMT_OBS*1.33 - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT);
+          setMotorDVoltage(PWMT_OBS*1.33);
         }
         else {
-          setMotorDVoltage(PWMT_OBS*1.45);
-          setMotorGVoltage(PWMT_OBS*1.45);
+          setMotorDVoltage(PWMT_OBS*1.42);
+          setMotorGVoltage(PWMT_OBS*1.42);
         }
       }
     }
