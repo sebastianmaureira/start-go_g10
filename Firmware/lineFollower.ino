@@ -65,7 +65,7 @@ else if (bits_pos==0){
 else if (bits_pos > 7){
         last_dir = 1;
         }*/
-else if ((15^ bits_pos) & gau){
+if ((15^ bits_pos) & gau){
           last_dir= 1;
           }
 else if ((15^ bits_pos) & dro){

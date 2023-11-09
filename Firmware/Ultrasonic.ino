@@ -3,10 +3,16 @@
 
 
 
-MeUltrasonicSensor ultraSensor(ULTRASENSOR);
+MeUltrasonicSensor ultraSensor_front(ULTRASENSORFRONT);
+MeUltrasonicSensor ultraSensor_side(ULTRASENSORSIDE);
 
 
-int get_cm() {
-  int salida = ultraSensor.distanceCm();
+unsigned int get_cm_front() {
+  unsigned int salida = ultraSensor_front.distanceCm();
+  return salida;
+  }
+
+unsigned int get_cm_side() {
+  unsigned int salida = ultraSensor_side.distanceCm();
   return salida;
   }
