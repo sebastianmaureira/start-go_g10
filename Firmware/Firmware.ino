@@ -19,11 +19,11 @@
 
 #define DT 45 //sampling period in milliseconds
 #define DT_Filter 20
-#define PWMT 85 //définit le pwm de travail, celui d'un robot parfaitement calibré
+#define PWMT 85//définit le pwm de travail, celui d'un robot parfaitement calibré       
 #define PWMT_OBS 44 //définit le pwm de travail, celui d'un robot parfaitement calibré
-#define KP 0.3// coeeficient pour la partie proportionelle  .37    .35    .3    3
-#define KI 0.12// coefficient pour la partie integrée        .13    .11   .12     11
-#define KD 0// coefficient pour la partie dérivée         .03    .02  .025    0
+#define KP 0.2// coeeficient pour la partie proportionelle  .37    .35    .3    3
+#define KI 0.11// coefficient pour la partie integrée        .13    .11   .12     11
+#define KD 0.0001// coefficient pour la partie dérivée         .03    .02  .025    0
 #define KP2 0.4 // coeeficient pour la partie proportionelle
 #define KI2 0.07 // coefficient pour la partie integrée
 #define KD2 0 // coefficient pour la partie dérivée
@@ -75,7 +75,11 @@ void loop() {
     //pos = avg;
     DP = pos - pos2;
     pos2 = pos;
+    if (state != 5){
     integrale = integrale + (pos * DT * 0.001);
+    //T2 = T;
+
+    }
 
     distance_front = get_cm_front();
     distance_side = get_cm_side();
@@ -86,7 +90,7 @@ void loop() {
       integrale = 0;
       DP = 0;
       }
-    else{
+    else if (state != 4){
       state = 0;
     }
 
@@ -101,37 +105,46 @@ void loop() {
     }
 
     // Turning avec PID AND turning state. (if turning state, no pid, just turns)
-    if (distance_front > 16  and distance_side >15){
+    if (distance_front > 16  and distance_side >25){
+      state = 0;
       if (pos > 0) {
-        setMotorGVoltage(PWMT -abs(pos) *0.35 + (KP * abs(pos) + integrale * KI -abs(DP / (DT*0.001)) * KD)*0.2);   // -abs(integrale) * 0.2
+        setMotorGVoltage(PWMT -abs(pos) *0.35 + (KP * abs(pos) + integrale * KI -abs(1000*DP / (DT)) * KD)*0.2);   // -abs(integrale) * 0.2
         setMotorDVoltage((PWMT -abs(pos) *0.35 - KP * abs(pos)  - integrale * KI) * (1- abs(turn))- abs(turn)*PWMT *0.7); // + abs(DP / (DT*0.001)) * KD   -abs(integrale) * 0.2
       } 
       else if (pos < 0 ) {
         setMotorGVoltage((PWMT -abs(pos) *0.35- abs(pos) * KP + integrale * KI) * (1- abs(turn)) - abs(turn)*PWMT *0.2);  // + abs(DP / (DT*0.001)) * KD   -abs(integrale) * 0.2
-        setMotorDVoltage(PWMT -abs(pos) *0.35 + (abs(pos) * KP- integrale * KI - abs(DP / (DT*0.001)) * KD)*0.7);    // -abs(integrale) * 0.2
+        setMotorDVoltage(PWMT -abs(pos) *0.35 + (abs(pos) * KP- integrale * KI - abs(1000*DP / (DT)) * KD)*0.7);    // -abs(integrale) * 0.2
       }
       // If straight AND no error, increase speed
       else if(abs(integrale) < 10){
-        setMotorDVoltage(PWMT*1.6);
-        setMotorGVoltage(PWMT*1.6);
+        setMotorDVoltage(PWMT*1.8);
+        setMotorGVoltage(PWMT*1.8);
         // integrale = 0;
       }
       // If straight, increase speed
       else {
-        setMotorDVoltage(PWMT*1.2);
-        setMotorGVoltage(PWMT*1.2);
+        setMotorDVoltage(PWMT*1.25);
+        setMotorGVoltage(PWMT*1.25);
         //Serial.println(abs(integrale));
         // integrale = 0;
       }
     } 
+  else if ((distance_front < 14 or distance_side < 25) and state != 4){
+      setMotorDVoltage(0);
+      setMotorGVoltage(0);
+      state = 5;
+      if (T-T2 > 4500){
+        state = 4;
+      }
+    }
 
-
-  // Turning logic
+  // Obstacle logic
   else if (distance_front < 15 && distance_side > 10) {
+    state = 2;
     T = millis();
     old_dir_obs = dir_obs;
     // Forces 90º turn
-    while (millis() - T < 580){
+    while (millis() - T < 560){
       if (dir_obs == 1){
         setMotorGVoltage(1.15 * PWMT_OBS);
         setMotorDVoltage(- (1.1*PWMT_OBS));
@@ -148,9 +161,9 @@ void loop() {
     
     integrale = 0;
     T2=millis();
-    T = millis();
+    T = T2;
     // Follow the line at least a little.
-    while (((15 ^ getState()) & 15 or millis() - T2 < 500) and T -T2 < 4500){
+    while (((15 ^ getState()) & 15 or millis() - T2 < 500) and T -T2 < 6000 and state != 5){
       if (millis() - T > DT){
         T = millis();
         lineFollower_loop();
@@ -159,16 +172,16 @@ void loop() {
         pos2 = pos;
         integrale = integrale + pos * DT * 0.001;
         if (pos > 0) {
-          setMotorGVoltage(PWMT_OBS*1.1);
-          setMotorDVoltage(PWMT_OBS*1.1 - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT );
+          setMotorGVoltage(PWMT_OBS*1.35);
+          setMotorDVoltage(PWMT_OBS*1.35 - abs(pos) * KP2 - integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT );
         }
         else if (pos < 0 ) {
-          setMotorGVoltage(PWMT_OBS*1.1 - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT);
-          setMotorDVoltage(PWMT_OBS*1.1);
+          setMotorGVoltage(PWMT_OBS*1.35 - abs(pos) * KP2 + integrale * KI2 + abs(DP / (DT*0.001)) * KD2);  // - abs(turn) * PWMT);
+          setMotorDVoltage(PWMT_OBS*1.35);
         }
         else {
-          setMotorDVoltage(PWMT_OBS*1.15);
-          setMotorGVoltage(PWMT_OBS*1.15);
+          setMotorDVoltage(PWMT_OBS*1.45);
+          setMotorGVoltage(PWMT_OBS*1.45);
         }
       }
     }
@@ -190,11 +203,7 @@ void loop() {
     state = 0;
   }
 
-  else if (distance_front < 15 and distance_side < 10){
-      setMotorDVoltage(0);
-      setMotorGVoltage(0);
-      delay(500);
-    }
+
 
 
 
